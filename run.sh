@@ -7,7 +7,7 @@ for instance in instances-table-mlp/*; do
 	echo $instance >> ./outputMLP.txt
 
 	echo "Running $instance"
-	echo "Instance $k of 23" 
+	echo "Instance $k of 22" 
 
 	./tsp ${instance} | awk "{print $1}" >> ./outputMLP.txt
 

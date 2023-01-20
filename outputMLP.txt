@@ -1,67 +1,67 @@
 Média do custo e o tempo em segundos de 10 execuções do algoritmo em cada instância. Intel® Core™ i5-6200U CPU @ 2.30GHz × 4
 
 instances-table-mlp/att48.tsp
-Custo: 209320  Tempo: 0.528179
+Custo: 209320  Tempo: 0.340943
 
 instances-table-mlp/berlin52.tsp
-Custo: 144116  Tempo: 0.522618
+Custo: 143721  Tempo: 0.438367
 
 instances-table-mlp/brazil58.tsp
-Custo: 514659  Tempo: 0.753955
+Custo: 512361  Tempo: 0.686685
 
 instances-table-mlp/dantzig42.tsp
-Custo: 12528  Tempo: 0.335041
+Custo: 12528  Tempo: 0.180731
 
 instances-table-mlp/eil101.tsp
-Custo: 28071.1  Tempo: 3.62728
+Custo: 27563.2  Tempo: 6.27701
 
 instances-table-mlp/eil51.tsp
-Custo: 10252.6  Tempo: 0.689796
+Custo: 10178  Tempo: 0.519975
 
 instances-table-mlp/eil76.tsp
-Custo: 18229.7  Tempo: 1.7341
+Custo: 17982.7  Tempo: 2.23746
 
 instances-table-mlp/gr48.tsp
-Custo: 102378  Tempo: 0.55283
+Custo: 102378  Tempo: 0.412143
 
 instances-table-mlp/gr96.tsp
-Custo: 2.11133e+06  Tempo: 3.19975
+Custo: 2.09717e+06  Tempo: 4.3264
 
 instances-table-mlp/hk48.tsp
-Custo: 248034  Tempo: 0.499383
+Custo: 247926  Tempo: 0.341212
 
 instances-table-mlp/kroA100.tsp
-Custo: 997730  Tempo: 3.89836
+Custo: 983128  Tempo: 5.52642
 
 instances-table-mlp/kroB100.tsp
-Custo: 994035  Tempo: 3.8822
+Custo: 986008  Tempo: 6.20887
 
 instances-table-mlp/kroC100.tsp
-Custo: 973658  Tempo: 4.04604
+Custo: 961324  Tempo: 6.41719
 
 instances-table-mlp/kroD100.tsp
-Custo: 989428  Tempo: 3.83305
+Custo: 977077  Tempo: 6.19188
 
 instances-table-mlp/kroE100.tsp
-Custo: 973275  Tempo: 3.59011
+Custo: 971266  Tempo: 6.1352
 
 instances-table-mlp/lin105.tsp
-Custo: 607191  Tempo: 4.60919
+Custo: 603910  Tempo: 5.08716
 
 instances-table-mlp/pr107.tsp
-Custo: 2.05249e+06  Tempo: 4.30901
+Custo: 2.02663e+06  Tempo: 6.53174
 
 instances-table-mlp/pr76.tsp
-Custo: 3.47861e+06  Tempo: 2.00677
+Custo: 3.45524e+06  Tempo: 1.96639
 
 instances-table-mlp/rat99.tsp
-Custo: 58969.9  Tempo: 3.77553
+Custo: 58213.1  Tempo: 5.78192
 
 instances-table-mlp/rd100.tsp
-Custo: 349632  Tempo: 3.54778
+Custo: 340047  Tempo: 5.5146
 
 instances-table-mlp/st70.tsp
-Custo: 20606.7  Tempo: 1.47596
+Custo: 20557  Tempo: 1.51812
 
 instances-table-mlp/swiss42.tsp
-Custo: 22327  Tempo: 0.342222
+Custo: 22327  Tempo: 0.189947
