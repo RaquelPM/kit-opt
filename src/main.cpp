@@ -360,8 +360,8 @@ bool bestImprovementReinsertion3(Solution *s, Data& data, vector<vector<Subseque
     
     }
 
-    for(int i = 3; i < n-2; i++){
-      for(int j = i-2; j > 0; j--){
+    for(int i = 1; i < n-2; i++){
+      for(int j = i-1; j > 0; j--){
         Subsequence sigma1 = Subsequence::Concatenate(subseq_matrix[j][i-1], subseq_matrix[i+3][n], data);
         Subsequence sigma2 = Subsequence::Concatenate(subseq_matrix[i][i+2], sigma1, data);
 
@@ -437,7 +437,6 @@ void BuscaLocal(Solution& s, Data& data, vector<vector<Subsequence>>& subseq_mat
         else 
             n.erase(n.begin() + z);
     }
-
 }
 
 void Pertubacao(Solution *s, vector<vector<Subsequence>>& subseq_matrix, Data& data){
@@ -503,7 +502,7 @@ void Pertubacao(Solution *s, vector<vector<Subsequence>>& subseq_matrix, Data& d
         else{
             std::vector<int>::iterator index = find(s->sequencia.begin(), s->sequencia.end(), segmentOne[i]);
             s->sequencia.erase(index);
-            s->sequencia.insert(s->sequencia.begin()+segmentTwoFirst, segmentOne[i]);
+            s->sequencia.insert(s->sequencia.begin()+segmentTwoFirst-1+tTwo, segmentOne[i]);
         }
         
     }
@@ -540,6 +539,7 @@ Solution SolutionILS(int maxIter, int maxIterIls, Data& data, vector<vector<Subs
                 iterIls = 0;
             }
 
+            s = best;
             Pertubacao(&s, subseq_matrix_s, data);
             UpdateAllSubseq(&s, subseq_matrix_s, data);
             registerSolutionCost(&s, subseq_matrix_s, data);
@@ -576,7 +576,6 @@ int main(int argc, char** argv) {
         Solution bestSolution = SolutionILS(10, maxIterIls, data, subseq_matrix);
         UpdateAllSubseq(&bestSolution, subseq_matrix, data);
         registerSolutionCost(&bestSolution, subseq_matrix, data);
-
         media += bestSolution.valorObj;
     }
 
