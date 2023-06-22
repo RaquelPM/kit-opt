@@ -17,18 +17,18 @@ typedef vector<ii> vii;
 
 class Kruskal{
 public:
-	Kruskal(vii dist);
 
-	double MST(int nodes);
+	Kruskal();
+	double MST(int nodes, vvi dist);
 	vii getEdges();
-
 
 private:
 	priority_queue <pair<double,ii> > graph;
 	vector <int> pset;
 	vii edges;
 
-	void initDisjoint(int n);
+	void initGraph(vvi dist);
+	void initDisjoint(int n, vvi dist);
 	int findSet(int i);
 	void unionSet(int i, int j);
 	bool isSameSet(int i, int j);

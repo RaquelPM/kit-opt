@@ -1,14 +1,18 @@
 #include "Kruskal.h"
 
-Kruskal::Kruskal(vii dist){
+Kruskal::Kruskal(){}
+
+void Kruskal::initGraph(vvi dist){
 	for(int i = 1; i < dist.size(); ++i){
 		for(int j = 1; j < dist[i].size(); ++j){
-			graph.push(make_pair(-dist[i][j], make_pair(i, j)) );
+			graph.push( make_pair(-dist[i][j], make_pair(i, j)) );
 		}	
 	}
 }
 
-void Kruskal::initDisjoint(int n){
+void Kruskal::initDisjoint(int n, vvi dist){
+	initGraph(dist);
+	edges.clear();
 	pset.resize(n);
 	for (int i = 0; i < n; ++i){
 		pset[i] = i;
@@ -31,8 +35,8 @@ vii Kruskal::getEdges(){
 	return edges;
 }
 
-double Kruskal::MST(int nodes){
-	initDisjoint(nodes);
+double Kruskal::MST(int nodes, vvi dist){
+	initDisjoint(nodes, dist);
 
 	double cost = 0;
 
@@ -47,19 +51,18 @@ double Kruskal::MST(int nodes){
 		}
 	}
 
-	int best1, best2 = -1;
-	int distance = 9999999;
-
 	for (int j = 0; j<2;j++){
-		for (int i = 1; i< data.getDimension(); i++){
-			if(data.getDistance(0,i) < distance){
-				distance = data.getDistance(0,i);
-				if(!j) best1 = i;
-				else best2 = i;
+		int distance = 9999999;
+		int best = -1;
+		for(int i = 1; i < dist[0].size(); i++){
+			if(dist[0][i] < distance){
+				distance = dist[0][i];
+				best = i;
 			}
 		}
-		if(!j) edges.push_back(make_pair(0, best1));
-		else edges.push_back(make_pair(0, best2));
+		edges.push_back(make_pair(0, best));
+		cost += distance;
+		dist[0][best] = 999999;
 	}
 
 	return cost;
