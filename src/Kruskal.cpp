@@ -52,7 +52,7 @@ double Kruskal::MST(int nodes, vvi dist){
 	}
 
 	for (int j = 0; j<2;j++){
-		int distance = 9999999;
+		double distance = 9999999;
 		int best = -1;
 		for(int i = 1; i < dist[0].size(); i++){
 			if(dist[0][i] < distance){

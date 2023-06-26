@@ -6,83 +6,66 @@
 #include <algorithm>
 #include <cmath>
 #include <queue>
-
 using namespace std;
 
 #include "data.h"
-#include "Kruskal.h"
+#include "RL.h"
 
-int countEdges(vector <pair<int, int>> edges, int n){
-	int count = 0;
-	for (int i = 0; i < edges.size(); i++){
+struct Node{
+	vector<pair<int, int>> forbidden_edges;
+	vector<pair<int, int>> edges_to_branch;
+	vector<double> lambdas;
+	double lower_bound;
+	bool feasible;
+};
+
+void attNode(Node *node, vector<vector<double>> cost_matrix, Data& data, double UB){
+	RL *rl = new RL();
+
+	int n = rl->doRL(cost_matrix, data, UB, node->lambdas);
+	cout << "NO" << n <<endl;
+	node->lower_bound = rl->getNewUB();
+
+	node->feasible = n == -1 ? true : false;
+	vector<pair<int, int>> edges = rl->getBestEdges();
+
+
+	for(int i =0; i < edges.size(); i++){
+		//cout << edges[i].first << " " << edges[i].second << endl;
 		if (edges[i].first == n || edges[i].second == n){
-			count++;
+			node->edges_to_branch.push_back(edges[i]);
 		}
 	}
-	return count;
+	
+	delete rl;
 }
 
-double vectorSquared(vector <double> v){
-	int sum = 0;
-	for (int i = 0; i < v.size(); i++){
-		sum += v[i]*v[i];
+void attNodeSolution(Node *n, Data& data, double UB){
+	vector<vector<double>> cost(data.getDimension(), vector<double>(data.getDimension()));
+	for (int i = 0; i < data.getDimension(); i++){
+		for (int j = 0; j < data.getDimension(); j++){
+			cost[i][j] = data.getDistance(i,j);
+		}
 	}
-	return sum;
-}
+	cout << n->forbidden_edges.size() << endl;
 
-//  vector <pair<int, int>> RL(double *new_UB, double UB, vector<double*> best_lambdas, Data& data, vector<vector<double>> dist, Kruskal& kruskal){
-// 	int k = 0;
-// 	int step = 1;
+	for(int i =0; i < n->forbidden_edges.size(); i++){
+		//cout << "FORBIDDEN: ";
+		//cout << n->forbidden_edges[i].first << " " << n->forbidden_edges[i].second << endl;
+		cost[n->forbidden_edges[i].first][n->forbidden_edges[i].second] = INFINITE;
+		cost[n->forbidden_edges[i].second][n->forbidden_edges[i].first] = INFINITE;
+	}
 
-// 	vector<double*> lambdas(data.getDimension());
-// 	vector<double> subgradiente(data.getDimension());
-// 	vector <pair<int, int>> edges, best_edges;
+	attNode(n,cost, data, UB);
+};
 
-// 	while(step >= 0.0001){	
-// 		// solução
-// 		double cost = kruskal.MST(data.getDimension(), dist);
-// 		edges = kruskal.getEdges();
-
-// 		if(*new_UB > cost){
-// 			*new_UB = cost;
-// 			best_edges = edges;
-// 			best_lambdas = lambdas;
-// 		}
-// 		else{
-// 			k++;
-// 			if(k >= 100) step = step/2;
-// 		}
-
-// 		// subgradiente e custo
-// 		for(int i = 0; i < data.getDimension(); i++){
-// 			subgradiente[i] = (2 - countEdges(edges, i));
-// 			cost += 2*(*lambdas[i]);
-// 		}
-
-// 		// atualiza lambdas
-// 		for(int i = 0; i < data.getDimension(); i++){
-// 			double e = (step*(UB - cost))/vectorSquared(subgradiente);
-// 			*lambdas[i] = (*lambdas[i]) + e*subgradiente[i];
-// 		}
-
-// 		// atualiza distancias
-// 		for (int i = 0; i < data.getDimension(); i++){
-// 			for (int j = 0; j < data.getDimension(); j++){
-// 				dist[i][j] = data.getDistance(i,j) - (*lambdas[i]) - (*lambdas[j]);
-// 			}
-// 		}
-
-// 	}
-
-// 	return best_edges;
-// }
-
+ bool operator<(const Node& i, const Node& j){
+ 	return i.lower_bound > j.lower_bound;
+ }
 
 int main(int argc, char** argv) {
 	Data * data = new Data(argc, argv[1]);
 	data->readData();
-
-	double UB = stod(argv[2])+1;
 
 	vector <vector<double>> dist(data->getDimension(), vector<double>(data->getDimension()));
 	for (int i = 0; i < data->getDimension(); i++){
@@ -91,68 +74,58 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	int k = 0;
-	int step = 1;
-	double new_UB = UB;
+	RL *rl = new RL();
 
-	vector<double> best_lambdas(data->getDimension());
-	vector <pair<int, int>> best_edges;
-
-	Kruskal *kruskal = new Kruskal();
-
-	// best_edges = RL(&new_UB, UB, best_lambdas, *data, dist, *kruskal);
-
+	double UB = stod(argv[2])+1;
 	vector<double> lambdas(data->getDimension());
-	vector<double> subgradiente(data->getDimension());
-	vector <pair<int, int>> edges;
-	double cost;
 
-	while(step >= 0.0001){
-		// solução
-		cost = kruskal->MST(data->getDimension(), dist);
-		edges = kruskal->getEdges();
+	int n = rl->doRL(dist, *data, UB, lambdas);
+	cout << "n: " << n << endl;
 
-		cout << cost << endl;
-		if(new_UB > cost){
-			new_UB = cost;
-			best_edges = edges;
-			best_lambdas = lambdas;
-		}
-		else{
-			k++;
-			if(k >= 1000) step = step/2;
-		}
-
-		// subgradiente e custo
-		for(int i = 0; i < data->getDimension(); i++){
-			subgradiente[i] = (2 - countEdges(edges, i));
-			cost += 2*lambdas[i];
-		}
-
-		// atualiza lambdas
-		for(int i = 0; i < data->getDimension(); i++){
-			//if(vectorSquared(subgradiente) == 0) {cout << k << endl;break;};
-			double e = (step*(UB - cost))/vectorSquared(subgradiente);
-			lambdas[i] = lambdas[i] + e*subgradiente[i];
-		}
-
-		// atualiza distancias
-		for (int i = 0; i < data->getDimension(); i++){
-			for (int j = 0; j < data->getDimension(); j++){
-				dist[i][j] = data->getDistance(i,j) - lambdas[i] - lambdas[j];
-			}
-		}
-
+	cout << "Custo: " << rl->getNewUB() << endl;
+	cout << "Caminho: " << rl->getBestEdges().size() << endl;
+	for (int i = 0; i < rl->getBestEdges().size(); i++){
+		cout << rl->getBestEdges()[i].first << " " << rl->getBestEdges()[i].second << endl;
 	}
 
-	cout << "Custo: " << new_UB << endl;
-	cout << "Caminho: " << best_edges.size() << endl;
-	for (int i = 0; i < best_edges.size(); i++){
-		cout << best_edges[i].first << " " << best_edges[i].second << endl;
-	}
+	Node raiz;
+	raiz.lambdas = vector<double>(data->getDimension());
+	attNodeSolution(&raiz, *data, UB);
+	
+	priority_queue<Node> tree;
+ 	tree.push(raiz);
+
+	while(!tree.empty()){
+		cout << tree.size() << endl;
+ 		Node node = tree.top();
+ 		tree.pop();
+
+		cout << "branchs" << node.edges_to_branch.size() << endl;
+		cout << "forbidden edges" << node.forbidden_edges.size() << endl;
+
+ 		if (node.feasible){
+			UB = min(UB, node.lower_bound);
+			cout << "FEASIBLE!!!!" << endl;
+		}
+ 		else {
+ 			for(int i =0; i< node.edges_to_branch.size();i++){
+				Node n;
+ 				n.forbidden_edges = node.forbidden_edges;
+				n.lambdas = node.lambdas;
+
+ 				n.forbidden_edges.push_back(node.edges_to_branch[i]);
+
+				cout << "forbidden edges novo n: " << n.forbidden_edges.size() << endl;
+
+ 				attNodeSolution(&n, *data, UB);
+ 				if(n.lower_bound <= UB) tree.push(n);
+ 			}
+ 		}
+ 	}
 
 
-	delete kruskal;
+	cout << UB << endl;
+
 	delete data;
 
     return 0;    
