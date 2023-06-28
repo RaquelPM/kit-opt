@@ -79,8 +79,9 @@ int RL::doRL(vector<vector<double>> dist, Data& data, double UB, vector<double>&
 
 	}
 	for(int i =0; i< best_edges.size(); i++){
-		if(rlCountEdges(best_edges, i) > maior_grau){
-			maior_grau = rlCountEdges(best_edges, i);
+		int grau = rlCountEdges(best_edges, i);
+		if(grau >= maior_grau){
+			maior_grau = grau;
 			n = i;
 		}
 	}

@@ -23,12 +23,12 @@ void attNode(Node *node, vector<vector<double>> cost_matrix, Data& data, double 
 	RL *rl = new RL();
 
 	int n = rl->doRL(cost_matrix, data, UB, node->lambdas);
-	cout << "NO" << n <<endl;
+	//cout << "NO " << n <<endl;
 	node->lower_bound = rl->getNewUB();
+	//cout << node->lower_bound << endl;
 
 	node->feasible = n == -1 ? true : false;
 	vector<pair<int, int>> edges = rl->getBestEdges();
-
 
 	for(int i =0; i < edges.size(); i++){
 		//cout << edges[i].first << " " << edges[i].second << endl;
@@ -47,7 +47,7 @@ void attNodeSolution(Node *n, Data& data, double UB){
 			cost[i][j] = data.getDistance(i,j);
 		}
 	}
-	cout << n->forbidden_edges.size() << endl;
+	//cout << n->forbidden_edges.size() << endl;
 
 	for(int i =0; i < n->forbidden_edges.size(); i++){
 		//cout << "FORBIDDEN: ";
@@ -59,53 +59,39 @@ void attNodeSolution(Node *n, Data& data, double UB){
 	attNode(n,cost, data, UB);
 };
 
+
  bool operator<(const Node& i, const Node& j){
  	return i.lower_bound > j.lower_bound;
  }
 
+
 int main(int argc, char** argv) {
+	clock_t start= clock();
 	Data * data = new Data(argc, argv[1]);
 	data->readData();
 
-	vector <vector<double>> dist(data->getDimension(), vector<double>(data->getDimension()));
-	for (int i = 0; i < data->getDimension(); i++){
-		for (int j = 0; j < data->getDimension(); j++){
-			dist[i][j] = data->getDistance(i,j);
-		}
-	}
-
-	RL *rl = new RL();
-
 	double UB = stod(argv[2])+1;
-	vector<double> lambdas(data->getDimension());
-
-	int n = rl->doRL(dist, *data, UB, lambdas);
-	cout << "n: " << n << endl;
-
-	cout << "Custo: " << rl->getNewUB() << endl;
-	cout << "Caminho: " << rl->getBestEdges().size() << endl;
-	for (int i = 0; i < rl->getBestEdges().size(); i++){
-		cout << rl->getBestEdges()[i].first << " " << rl->getBestEdges()[i].second << endl;
-	}
+	double upper_bound = UB;
 
 	Node raiz;
 	raiz.lambdas = vector<double>(data->getDimension());
 	attNodeSolution(&raiz, *data, UB);
 	
-	priority_queue<Node> tree;
- 	tree.push(raiz);
+	//priority_queue<Node> tree;
+	//tree.push(raiz);
+	vector<Node> tree;
+ 	tree.push_back(raiz);
 
 	while(!tree.empty()){
-		cout << tree.size() << endl;
- 		Node node = tree.top();
- 		tree.pop();
-
-		cout << "branchs" << node.edges_to_branch.size() << endl;
-		cout << "forbidden edges" << node.forbidden_edges.size() << endl;
+		//cout << "TREE: " << tree.size() << endl;
+ 		Node node = tree[0]; 
+ 		tree.erase(tree.begin());
+		//Node node = tree.top();
+		//tree.pop();
 
  		if (node.feasible){
-			UB = min(UB, node.lower_bound);
-			cout << "FEASIBLE!!!!" << endl;
+			upper_bound = min(upper_bound, node.lower_bound);
+			//cout << "FEASIBLE !!!" << node.lower_bound << endl;
 		}
  		else {
  			for(int i =0; i< node.edges_to_branch.size();i++){
@@ -115,17 +101,25 @@ int main(int argc, char** argv) {
 
  				n.forbidden_edges.push_back(node.edges_to_branch[i]);
 
-				cout << "forbidden edges novo n: " << n.forbidden_edges.size() << endl;
-
  				attNodeSolution(&n, *data, UB);
- 				if(n.lower_bound <= UB) tree.push(n);
+ 				if(n.lower_bound <= upper_bound){
+					tree.push_back(n);
+					//tree.push(n);
+					//cout << "LB: " << n.lower_bound << endl;
+					//cout << "UB: " << upper_bound << endl;
+				} 
  			}
  		}
  	}
 
 
-	cout << UB << endl;
+	cout << upper_bound << endl;
+	
 
+	clock_t end= clock();
+    double time= ((double) (end - start)) / CLOCKS_PER_SEC;
+
+	cout << time << endl;
 	delete data;
 
     return 0;    
