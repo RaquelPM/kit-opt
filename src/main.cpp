@@ -23,15 +23,12 @@ void attNode(Node *node, vector<vector<double>> cost_matrix, Data& data, double 
 	RL *rl = new RL();
 
 	int n = rl->doRL(cost_matrix, data, UB, node->lambdas);
-	//cout << "NO " << n <<endl;
 	node->lower_bound = rl->getNewUB();
-	//cout << node->lower_bound << endl;
 
 	node->feasible = n == -1 ? true : false;
 	vector<pair<int, int>> edges = rl->getBestEdges();
 
 	for(int i =0; i < edges.size(); i++){
-		//cout << edges[i].first << " " << edges[i].second << endl;
 		if (edges[i].first == n || edges[i].second == n){
 			node->edges_to_branch.push_back(edges[i]);
 		}
@@ -47,11 +44,8 @@ void attNodeSolution(Node *n, Data& data, double UB){
 			cost[i][j] = data.getDistance(i,j);
 		}
 	}
-	//cout << n->forbidden_edges.size() << endl;
 
 	for(int i =0; i < n->forbidden_edges.size(); i++){
-		//cout << "FORBIDDEN: ";
-		//cout << n->forbidden_edges[i].first << " " << n->forbidden_edges[i].second << endl;
 		cost[n->forbidden_edges[i].first][n->forbidden_edges[i].second] = INFINITE;
 		cost[n->forbidden_edges[i].second][n->forbidden_edges[i].first] = INFINITE;
 	}
@@ -59,10 +53,11 @@ void attNodeSolution(Node *n, Data& data, double UB){
 	attNode(n,cost, data, UB);
 };
 
-
+/*
  bool operator<(const Node& i, const Node& j){
  	return i.lower_bound > j.lower_bound;
  }
+ */
 
 
 int main(int argc, char** argv) {
@@ -83,7 +78,6 @@ int main(int argc, char** argv) {
  	tree.push_back(raiz);
 
 	while(!tree.empty()){
-		//cout << "TREE: " << tree.size() << endl;
  		Node node = tree[0]; 
  		tree.erase(tree.begin());
 		//Node node = tree.top();
@@ -91,7 +85,6 @@ int main(int argc, char** argv) {
 
  		if (node.feasible){
 			upper_bound = min(upper_bound, node.lower_bound);
-			//cout << "FEASIBLE !!!" << node.lower_bound << endl;
 		}
  		else {
  			for(int i =0; i< node.edges_to_branch.size();i++){
@@ -105,8 +98,6 @@ int main(int argc, char** argv) {
  				if(n.lower_bound <= upper_bound){
 					tree.push_back(n);
 					//tree.push(n);
-					//cout << "LB: " << n.lower_bound << endl;
-					//cout << "UB: " << upper_bound << endl;
 				} 
  			}
  		}
