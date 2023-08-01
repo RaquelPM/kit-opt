@@ -4,6 +4,7 @@
 #include <ilcplex/ilocplex.h>
 #include <iostream>
 #include <vector>
+#include <cmath>
 
 #define bigM 1000000
 #define EPSILON 0.00000001
@@ -27,5 +28,10 @@ class MasterProblem{
         MasterProblem(Data* data);
         double solve();
         void addColumn(vector<bool> column);
-
+        pair<int, int> getPairFractioned();
+        vector<double> getLambdas();
+        vector<vector<bool>> getItemIJ();
+        void attLambdas(vector<int> lambdasProhibited, vector<vector<bool>> A);
+        vector<int> getLambdasPairTogether(pair<int, int> pairFractioned);
+        vector<int> getLambdasPairSeparated(pair<int, int> pairFractioned);
 };

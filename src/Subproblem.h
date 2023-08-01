@@ -27,5 +27,7 @@ class Subproblem{
         vector<bool> solution;
         Subproblem(Data* data);
         void attObjective(IloNumArray duals);
-        double solve();
+        void attRestrictionsTogether(vector<pair<int, int>> pairT);
+        void attRestricitionsSeparated(vector<pair<int, int>> pairS);
+        double solve(bool raiz);
 };

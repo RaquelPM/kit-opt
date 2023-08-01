@@ -38,45 +38,64 @@ void Subproblem::attObjective(IloNumArray duals){
     sum.end();
 }
 
-double Subproblem::solve(){
+double Subproblem::solve(bool raiz){
     int n = data->getQuantItems();
-    /*solver = IloCplex(modelSub);
-    solver.setOut(envSub.getNullStream());
+    double objResult;
 
-    solver.setParam(IloCplex::Param::TimeLimit, 2*60);
-    solver.setParam(IloCplex::Param::Threads, 1);
-    solver.setParam(IloCplex::Param::MIP::Tolerances::MIPGap, 1e-08);
+    if(!raiz){
+        solver = IloCplex(modelSub);
+        solver.setOut(envSub.getNullStream());
 
-    solver.solve();
+        solver.setParam(IloCplex::Param::TimeLimit, 2*60);
+        solver.setParam(IloCplex::Param::Threads, 1);
+        solver.setParam(IloCplex::Param::MIP::Tolerances::MIPGap, 1e-08);
+
+        solver.solve();
 
 
 
-    solution  = vector<bool>(n, 0);
+        solution  = vector<bool>(n, 0);
 
-    for(int i = 0; i < n; i++){
-        solution[i] = solver.getValue(x[i]) >= 0.9 - EPSILON ? 1 : 0;
+        for(int i = 0; i < n; i++){
+            solution[i] = solver.getValue(x[i]) >= 0.9 - EPSILON ? 1 : 0;
+        }
+
+        objResult = solver.getObjValue();
     }
+    else {
+        int *w = new int[n];
+        int *x = new int[n];
 
-    return solver.getObjValue();*/
+        for(int i =0; i <n; i++){
+            w[i] = data->getWeight(i);
+        }
 
-    int *w = new int[n];
-    int *x = new int[n];
+        long double obj = minknap(n, p, w, x, data->getCapacity());
 
-    for(int i =0; i <n; i++){
-        w[i] = data->getWeight(i);
+        delete w;
+
+        solution = vector<bool>(n, 0);
+
+        for(int i = 0; i < n; i++){
+            solution[i] = x[i];
+        }
+
+        delete x;
+        objResult = obj/bigM;
     }
-
-    long double obj = minknap(n, p, w, x, data->getCapacity());
-
-    delete w;
-
-    solution = vector<bool>(n, 0);
-
-    for(int i = 0; i < n; i++){
-        solution[i] = x[i];
-    }
-
-    delete x;
-
-    return obj/bigM;
+    
+    return objResult;
 }
+
+void Subproblem::attRestrictionsTogether(vector<pair<int, int>> pairT){
+    for(int i = 0; i < pairT.size(); i++){
+        modelSub.add(x[pairT[i].first] == x[pairT[i].second]);
+    }
+}
+
+void Subproblem::attRestricitionsSeparated(vector<pair<int, int>> pairS){
+    for(int i = 0; i < pairS.size(); i++){
+        modelSub.add(x[pairS[i].first] + x[pairS[i].second] <= 1);
+    }
+}
+
