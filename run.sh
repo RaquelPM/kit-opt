@@ -3,8 +3,8 @@ echo "--TSP Benchmark--"
 make
 
 k=1
-for instance in instances-table-mlp/*; do
-	echo $instance >> ./outputMLP.txt
+for instance in instances-table/*; do
+	echo $instance >> ./output.txt
 
 	echo "Running $instance"
 	echo "Instance $k of 22" 
