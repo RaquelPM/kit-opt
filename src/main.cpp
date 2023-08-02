@@ -31,24 +31,19 @@ void isFeasible(MasterProblem* m, Node* n){
 double GC(Node *n, MasterProblem *master, Data* data){
     Subproblem sub(data);
 
-    cout << "init GC" << endl;
     if(!n->raiz) master->attLambdas(n->lambdasProhibited, n->itemIJ);
-        cout << "pair proibido junto" << endl;
-    for(int i = 0; i < n->pairsProhibitedTogether.size(); i++){
-        cout << n->pairsProhibitedTogether[i].first << " " << n->pairsProhibitedTogether[i].second << endl;
+
+    try{
+        n->bins = master->solve();
+    } catch(const char* msg){
+        n->bins = bigM;
+        return -1;
     }
-    cout << "pair proibido separado" << endl;
-    for(int i = 0; i < n->pairsProhibitedSeparated.size(); i++){
-        cout << n->pairsProhibitedSeparated[i].first << " " << n->pairsProhibitedSeparated[i].second << endl;
-    }
-    n->bins = master->solve();
 
     sub.attObjective(master->duals);
 
     sub.attRestricitionsSeparated(n->pairsProhibitedTogether);
     sub.attRestrictionsTogether(n->pairsProhibitedSeparated);
-
-
 
     double subOpt = sub.solve(n->raiz);
     while(1 - subOpt < -EPSILON){
@@ -61,7 +56,6 @@ double GC(Node *n, MasterProblem *master, Data* data){
 
     isFeasible(master, n);
 
-    cout << "end GC " <<  n->bins << endl;
     n->itemIJ = master->getItemIJ(); 
 
     return n->bins;
@@ -94,29 +88,13 @@ int main(int argc, char** argv){
         if(n.feasible){
             if(n.bins <= UB-1){
                 UB = n.bins;
-                cout << "FEASIBLE: " << UB << endl;
-                pair<int, int> pairFractionated = master.getPairFractioned();
             }
         }
         else{
-            cout << "NOT FEASIBLE" << endl;
             pair<int, int> pairFractionated = master.getPairFractioned();
 
             vector<int> lambdasPairTogether = master.getLambdasPairTogether(pairFractionated);
             vector<int> lambdasPairSeparated = master.getLambdasPairSeparated(pairFractionated);
-
-            // show lambdasPairTogether
-            cout << "lambdasPairTogether: ";
-            for(int i =0; i < lambdasPairTogether.size(); i++){
-                cout << lambdasPairTogether[i] << " ";
-            }
-            cout << endl;
-
-            cout << "lambdasPairSeparated: ";
-            for(int i =0; i < lambdasPairSeparated.size(); i++){
-                cout << lambdasPairSeparated[i] << " ";
-            }
-            cout << endl;
 
             Node newNodeTogether, newNodeSeparated;
 
@@ -133,43 +111,11 @@ int main(int argc, char** argv){
                 newNodeSeparated.lambdasProhibited.push_back(lambdasPairSeparated[i]);
             }
 
-
-            for(int i =0; i < newNodeTogether.lambdasProhibited.size(); i++){
-                cout << newNodeTogether.lambdasProhibited[i] << " ";
-            }
-            cout << endl;
-            
-            for(int i =0; i < newNodeSeparated.lambdasProhibited.size(); i++){
-                cout << newNodeSeparated.lambdasProhibited[i] << " ";
-            }
-            cout << endl;
-
             tree.push_back(newNodeTogether);
             tree.push_back(newNodeSeparated);
         }
     }
 
-
-
-
-    // vector<int> lambdasProhibited;
-
-    // master.solve(lambdasProhibited);
-
-    // Subproblem sub(&data);
-    // sub.attObjective(master.duals);
-
-    // double subOpt = sub.solve(true);
-
-    // double bins;
-
-    // while(1 - subOpt < 0){
-    //     master.addColumn(sub.solution);
-    //     bins = master.solve(lambdasProhibited);
-
-    //     sub.attObjective(master.duals);
-    //     subOpt = sub.solve(true);
-    // }
 
     clock_t end= clock();
     double time= ((double) (end - start)) / CLOCKS_PER_SEC;

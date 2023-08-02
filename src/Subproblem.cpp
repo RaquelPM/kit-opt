@@ -52,6 +52,7 @@ double Subproblem::solve(bool raiz){
 
         solver.solve();
 
+        //solver.exportModel("modelSub.lp");
 
 
         solution  = vector<bool>(n, 0);

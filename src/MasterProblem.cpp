@@ -40,6 +40,11 @@ double MasterProblem::solve(){
     
     solver.solve();
 
+    if(solver.getStatus() == IloAlgorithm::Infeasible){
+        throw "Infeasible" + solver.getStatus();
+    }
+    //solver.exportModel("model.lp");
+
     duals = IloNumArray(env, n);
 
     for(int i = 0; i < n; i++){
@@ -75,7 +80,6 @@ void MasterProblem::addColumn(vector<bool> column){
     itemIJ.push_back(column);
     lambdas.add(newLambda);
 
-    cout << "size: adicionando colunas" << itemIJ.size() << " " << lambdas.getSize() << endl;
 }
 
 pair<int, int> MasterProblem::getPairFractioned(){
@@ -85,15 +89,6 @@ pair<int, int> MasterProblem::getPairFractioned(){
     double fractionedValue = bigM;
 
     vector<vector<double>> pairs(n, vector<double>(n, 0));
-    
-    // show itemIJ
-    cout << "itemIJ: " << endl;
-    for(int i = 0; i < itemIJ.size(); i++){
-        for(int j = 0; j < n; j++){
-            cout << itemIJ[i][j] << " ";
-        }
-        cout << " lambda: " << solver.getValue(lambdas[i]) << endl;
-    }
 
     for(int i = 0; i < itemIJ.size(); i++){
         for(int j = 0; j < n-1; j++){
@@ -106,30 +101,15 @@ pair<int, int> MasterProblem::getPairFractioned(){
         }
     }
 
-    cout << endl;
-
-    // show pairs
-    cout << "pairs: " << endl;
-    for(int i = 0; i < pairs.size(); i++){
-        for(int j = 0; j < pairs[i].size(); j++){
-            cout << pairs[i][j] << " ";
-        }
-        cout << endl;
-    }
-
     for(int i = 0; i < pairs.size(); i++){        
         for(int j = i+1; j < pairs[i].size(); j++){
             if(pairs[i][j] == 0) continue;
-            cout << i << " " << j << " " << pairs[i][j] << endl;
             if(abs(pairs[i][j] - 0.5) < fractionedValue){
                 fractionedPair = make_pair(i, j);
                 fractionedValue = abs(pairs[i][j] - 0.5);
             }
         }
     }
-
-    cout << "fractionedPair: " << fractionedPair.first << " " << fractionedPair.second << endl;
-    if(fractionedPair.first == 0 && fractionedPair.second == 0) exit(0);
 
     return fractionedPair;
 }
